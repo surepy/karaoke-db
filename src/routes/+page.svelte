@@ -3,8 +3,8 @@
 	import welcome_fallback from "$lib/images/svelte-welcome.png";
 	import type { SongEntry } from "$lib/types";
 	import data_all from "$lib/songs.json";
-	import SvelteFuse from 'svelte-fuse';
-	import type { ResultType } from 'svelte-fuse';
+	import SvelteFuse from '$lib/svelte-fuse/SvelteFuse.svelte';
+    import type { FuseResult } from "fuse.js";
 
 	$: data = <SongEntry[]>data_all;
 
@@ -19,17 +19,18 @@
 		// findAllMatches: false,
 		// minMatchCharLength: 1,
 		// location: 0,
-		// threshold: 0.6,
-		// distance: 100,
+		threshold: 0.4,
+		distance: 10,
 		// useExtendedSearch: false,
 		// ignoreLocation: false,
 		// ignoreFieldNorm: false,
 		// fieldNormWeight: 1,
 		keys: ["id", "title", "artist"],
+		limit: 10
 	};
 
 
-	let result: ResultType<SongEntry> = [];
+	let result: FuseResult<SongEntry>[] = [];
 </script>
 
 <svelte:head>
@@ -50,24 +51,21 @@
 	</h1>
 	<input type="text" bind:value={searchPattern} />
 
-	<button
-		on:click={() => {
-		}}
-	/>
+	<SvelteFuse list={data} {options} query={searchPattern} bind:result let:search> 
+		<button
+			on:click={() => {
+				search();
+			}}
+		>
+			ligma 
+		</button>
+	</SvelteFuse>
 
-	<SvelteFuse list={data} {options} query={searchPattern} bind:result />
+	{#each result as _data}
+		{_data.item.title}
+		<br>
+	{/each}
 
-	{JSON.stringify(result)}
-	<!--
-	{#each fuse.search(searchPattern) as _data}
-		{JSON.stringify(_data)}
-	{/each}
-	-->
-	<!--
-	{#each { length: 3 } as _, i}
-		{JSON.stringify(data_all[i])}
-	{/each}
-	-->
 	<h2>
 		try editing <strong>src/routes/+page.svelte</strong>
 	</h2>
